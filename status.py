@@ -1,5 +1,6 @@
 """ The Tennis Ladder API"""
 import os
+import sys
 from flask import Flask, jsonify, request
 from flask.ext.sqlalchemy import SQLAlchemy
 
@@ -37,11 +38,23 @@ def db_test():
 def create_player(name, email):
     """create a new player"""
     print "creating " + email
-    player = Player(name, email)
-    DB.session.add(player)
-    DB.session.commit()
-    status = {"status": "OK"}
-    return jsonify(result=status)
+    try:
+        player = Player(name, email)
+        DB.session.add(player)
+        DB.session.commit()
+    except Exception as e:
+        print "exception caught", sys.exc_info()[0]
+        status = {"status": "ERROR"}
+    else:
+        status = {"status": "OK"}
+    finally:
+        return jsonify(result=status)
+
+
+@APP.errorhandler(405)
+@APP.errorhandler(404)
+def not_allowed(error):
+    return jsonify(http_status=error.code, description=error.name);
 
 
 def get_players():
@@ -54,20 +67,12 @@ def get_players():
 
 
 class PlayerRank:
-    """Represents a player and its points"""
+    """Represents a player and its points. This is only temp.. i will likely remove it"""
     def __init__(self, player_id, username, rank, points):
         self.player_id = player_id
         self.username = username
         self.rank = rank
         self.points = points
-
-    def method1(self):
-        """bla"""
-        print "methond to keep pylint happy for now " + self.username
-
-    def method2(self):
-        """bla"""
-        print "methond to keep pylint happy for now "  + self.rank
 
 
 class Player(DB.Model):
@@ -84,32 +89,15 @@ class Player(DB.Model):
     def __repr__(self):
         return '<Name %r>' % self.name
 
-    def method1(self):
-        """bla"""
-        print "methond to keep pylint happy for now " + self.name
-
-    def method2(self):
-        """bla"""
-        print "methond to keep pylint happy for now "  + self.email
-
 
 class Challenge(DB.Model):
     """DB Object represneting a challenge"""
     challengeId = DB.Column(DB.Integer, primary_key=True)
     player1 = DB.Column(DB.Integer, DB.ForeignKey('player.playerId'))
-    player2 = DB.Column(DB.Integer, DB.ForeignKey('player.playerId'))
 
-    def __init__(self, player1, player2):
+    def __init__(self, player1):
         self.player1 = player1
-        self.player2 = player2
 
     def __repr__(self):
         return '<player1 ' + self.player1 + '> <player2 ' + self.player2 + '>'
 
-    def method1(self):
-        """bla"""
-        print "methond to keep pylint happy for now " + self.player2
-
-    def method2(self):
-        """bla"""
-        print "methond to keep pylint happy for now " + self.player1
