@@ -1,1 +1,1 @@
-web: gunicorn status:app
+web: gunicorn status:APP
