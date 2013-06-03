@@ -1,12 +1,8 @@
-""" The Tennis Ladder API"""
-import os
-import sys
+from ladderapi import APP, DB, model
 from flask import Flask, jsonify, request
 from flask.ext.sqlalchemy import SQLAlchemy
-
-APP = Flask(__name__)
-APP.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
-DB = SQLAlchemy(APP)
+from ladderapi import model
+from model import Player
 
 
 @APP.route('/')
@@ -28,16 +24,16 @@ def db_test():
     print "OK"
     print "querying"
     all_users = Player.query.all()
-    userx = all_users.pop()
+    print "..."
     print all_users
+    userx = all_users.pop()
     print userx
     return jsonify(X=userx.email)
 
 
-@APP.route('/db/create/player/<string:name>/<string:email>', methods=['POST', 'PUT'])
+@APP.route('/create/player/<string:name>/<string:email>', methods=['POST', 'PUT'])
 def create_player(name, email):
     """create a new player"""
-    print "creating " + email
     try:
         player = Player(name, email)
         DB.session.add(player)
@@ -51,10 +47,17 @@ def create_player(name, email):
         return jsonify(result=status)
 
 
-@APP.errorhandler(405)
-@APP.errorhandler(404)
-def not_allowed(error):
-    return jsonify(http_status=error.code, description=error.name);
+@APP.route('/update/player/<int:id>', methods=['POST', 'PUT'])
+def update_player(id):
+    print id
+    player = request.json
+    return jsonify(status="OK")
+
+@APP.route('/json/test', methods=['POST', 'PUT'])
+def json_test():
+    req_obj = request.json
+    print req_obj['status']
+    return jsonify(x="OK")
 
 
 def get_players():
@@ -73,31 +76,3 @@ class PlayerRank:
         self.username = username
         self.rank = rank
         self.points = points
-
-
-class Player(DB.Model):
-    """DB Object repesenting a player """
-    playerId = DB.Column(DB.Integer, primary_key=True)
-    name = DB.Column(DB.String(80))
-    email = DB.Column(DB.String(120), unique=True)
-    challenges = DB.relationship('Challenge', backref='player', lazy='dynamic')
-
-    def __init__(self, name, email):
-        self.name = name
-        self.email = email
-
-    def __repr__(self):
-        return '<Name %r>' % self.name
-
-
-class Challenge(DB.Model):
-    """DB Object represneting a challenge"""
-    challengeId = DB.Column(DB.Integer, primary_key=True)
-    player1 = DB.Column(DB.Integer, DB.ForeignKey('player.playerId'))
-
-    def __init__(self, player1):
-        self.player1 = player1
-
-    def __repr__(self):
-        return '<player1 ' + self.player1 + '> <player2 ' + self.player2 + '>'
-

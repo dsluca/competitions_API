@@ -1,1 +1,1 @@
-web: gunicorn status:APP
+web: gunicorn runapp:APP
