@@ -14,7 +14,7 @@ DB = SQLAlchemy(APP)
 @APP.errorhandler(405)
 @APP.errorhandler(404)
 def not_allowed(error):
-    return jsonify(http_status=error.code, description=error.name);
+    return jsonify(http_status=error.code, description=error.name)
 
 
 import ladderapi.model

@@ -21,17 +21,13 @@ def get_ladder():
 @APP.route('/db/test')
 def db_test():
     """Test the connection to the db is fine."""
-    print "OK"
-    print "querying"
     all_users = Player.query.all()
-    print "..."
-    print all_users
     userx = all_users.pop()
-    print userx
     return jsonify(X=userx.email)
 
 
-@APP.route('/create/player/<string:name>/<string:email>', methods=['POST', 'PUT'])
+@APP.route('/create/player/<string:name>/<string:email>',
+           methods=['POST', 'PUT'])
 def create_player(name, email):
     """create a new player"""
     try:
@@ -53,6 +49,7 @@ def update_player(id):
     player = request.json
     return jsonify(status="OK")
 
+
 @APP.route('/json/test', methods=['POST', 'PUT'])
 def json_test():
     req_obj = request.json
@@ -70,7 +67,8 @@ def get_players():
 
 
 class PlayerRank:
-    """Represents a player and its points. This is only temp.. i will likely remove it"""
+    """Represents a player and its points.
+    This is only temp.. i will likely remove it"""
     def __init__(self, player_id, username, rank, points):
         self.player_id = player_id
         self.username = username

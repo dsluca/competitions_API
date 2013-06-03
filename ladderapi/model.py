@@ -2,6 +2,7 @@ from ladderapi import APP
 from ladderapi import DB
 from flask.ext.sqlalchemy import SQLAlchemy
 
+
 class Player(DB.Model):
     """DB Object repesenting a player """
     playerId = DB.Column(DB.Integer, primary_key=True)
@@ -27,4 +28,3 @@ class Challenge(DB.Model):
 
     def __repr__(self):
         return '<player1 ' + self.player1 + '> <player2 ' + self.player2 + '>'
-
