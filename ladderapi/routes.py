@@ -2,7 +2,8 @@ from ladderapi import APP, DB, model
 from flask import Flask, jsonify, request
 from flask.ext.sqlalchemy import SQLAlchemy
 from ladderapi import model
-from model import Player
+from model import Player, Competition
+import json
 
 
 @APP.route('/')
@@ -34,13 +35,15 @@ def create_player(name, email):
         player = Player(name, email)
         DB.session.add(player)
         DB.session.commit()
+        res = {"status": "OK",
+               "playerId" : player.playerId,
+               "name" : player.name,
+               "email" : player.email}
     except Exception as e:
         print "exception caught", sys.exc_info()[0]
-        status = {"status": "ERROR"}
-    else:
-        status = {"status": "OK"}
+        res = {"status": "ERROR"}
     finally:
-        return jsonify(result=status)
+        return jsonify(result=res)
 
 
 @APP.route('/update/player/<int:id>', methods=['POST', 'PUT'])
@@ -55,6 +58,36 @@ def json_test():
     req_obj = request.json
     print req_obj['status']
     return jsonify(x="OK")
+
+
+@APP.route('/get/competition_players/<int:competition_id>', methods=['GET'])
+def get_competition_players(competition_id):
+    """Get the players in a competition / ladder """
+    competition = Competition.query.filter_by(competitionId=competition_id).first()
+    print competition.players
+    return jsonify(players=None)
+
+@APP.route('/create/competition/<string:name>', methods=['PUT', 'POST'])
+def create_competition(name):
+    """Create a competition"""
+    competition = Competition(name)
+    DB.session.add(competition)
+    DB.session.commit()
+    return jsonify(competition=competition.competitionId)
+
+
+@APP.route('/register/player/<int:player_id>/in/competition/<int:competition_id>', methods=['PUT', 'POST'])
+def register_player_in_league(player_id, competition_id):
+    """Register / Add a player to a league"""
+    player = Player.query.filter_by(playerId=player_id).first()
+    if (player.playerId == player_id):
+        competition = Competition.query.filter_by(competitionId=competition_id).first()
+        print competition.players
+        competition.players.append(player)
+        DB.session.commit()
+        return jsonify(result="OK")
+    else:
+        return jsonify(status="player not found")
 
 
 def get_players():
