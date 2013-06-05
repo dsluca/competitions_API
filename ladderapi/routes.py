@@ -27,11 +27,16 @@ def db_test():
     return jsonify(X=userx.email)
 
 
+@APP.route('/create/player/', defaults={'name':None, 'email':None},
+           methods=['POST', 'PUT'])
 @APP.route('/create/player/<string:name>/<string:email>',
            methods=['POST', 'PUT'])
 def create_player(name, email):
     """create a new player"""
     try:
+        if (request.form.get('name', None) != None):
+            name = request.form['name']
+            email = request.form['email']
         player = Player(name, email)
         DB.session.add(player)
         DB.session.commit()
@@ -53,12 +58,6 @@ def update_player(id):
     return jsonify(status="OK")
 
 
-@APP.route('/json/test', methods=['POST', 'PUT'])
-def json_test():
-    req_obj = request.json
-    print req_obj['status']
-    return jsonify(x="OK")
-
 
 @APP.route('/get/competition_players/<int:competition_id>', methods=['GET'])
 def get_competition_players(competition_id):
@@ -66,6 +65,7 @@ def get_competition_players(competition_id):
     competition = Competition.query.filter_by(competitionId=competition_id).first()
     print competition.players
     return jsonify(players=None)
+
 
 @APP.route('/create/competition/<string:name>', methods=['PUT', 'POST'])
 def create_competition(name):
@@ -85,9 +85,15 @@ def register_player_in_league(player_id, competition_id):
         print competition.players
         competition.players.append(player)
         DB.session.commit()
-        return jsonify(result="OK")
+        mapped = map(lambda x: {x.name, x.email}, competition.players)
+        print mapped
+        return jsonify(result=mapped)
     else:
         return jsonify(status="player not found")
+
+
+def to_dict(x):
+    return x.__dict__
 
 
 def get_players():

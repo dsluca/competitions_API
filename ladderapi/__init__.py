@@ -13,6 +13,7 @@ DB = SQLAlchemy(APP)
 
 @APP.errorhandler(405)
 @APP.errorhandler(404)
+@APP.errorhandler(500)
 def not_allowed(error):
     return jsonify(http_status=error.code, description=error.name)
 
