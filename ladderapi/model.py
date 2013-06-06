@@ -4,9 +4,12 @@ from flask.ext.sqlalchemy import SQLAlchemy
 
 
 player_competitions = DB.Table('player_competitions',
-                   DB.Column('playerId', DB.Integer, DB.ForeignKey('player.playerId')),
-                   DB.Column('competitionId', DB.Integer, DB.ForeignKey('competition.competitionId'))
-)
+                               DB.Column('playerId', DB.Integer,
+                                         DB.ForeignKey('player.playerId')),
+                               DB.Column('competitionId',
+                                         DB.Integer,
+                                         DB.ForeignKey('competition.competitionId'))
+                              )
 
 
 class Player(DB.Model):
@@ -29,7 +32,7 @@ class Competition(DB.Model):
     competitionId = DB.Column(DB.Integer, primary_key=True)
     name = DB.Column(DB.String(120), unique=True)
     players = DB.relationship('Player', secondary=player_competitions,
-          backref = DB.backref('players', lazy='dynamic'))
+                              backref=DB.backref('players', lazy='dynamic'))
 
     def __init__(self, name):
         self.name = name

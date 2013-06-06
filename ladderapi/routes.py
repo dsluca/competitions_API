@@ -27,23 +27,23 @@ def db_test():
     return jsonify(X=userx.email)
 
 
-@APP.route('/create/player/', defaults={'name':None, 'email':None},
+@APP.route('/create/player/', defaults={'name': None, 'email': None},
            methods=['POST', 'PUT'])
 @APP.route('/create/player/<string:name>/<string:email>',
            methods=['POST', 'PUT'])
 def create_player(name, email):
     """create a new player"""
     try:
-        if (request.form.get('name', None) != None):
+        if (request.form.get('name', None) is not None):
             name = request.form['name']
             email = request.form['email']
         player = Player(name, email)
         DB.session.add(player)
         DB.session.commit()
         res = {"status": "OK",
-               "playerId" : player.playerId,
-               "name" : player.name,
-               "email" : player.email}
+               "playerId": player.playerId,
+               "name": player.name,
+               "email": player.email}
     except Exception as e:
         print "exception caught", sys.exc_info()[0]
         res = {"status": "ERROR"}
@@ -58,11 +58,11 @@ def update_player(id):
     return jsonify(status="OK")
 
 
-
 @APP.route('/get/competition_players/<int:competition_id>', methods=['GET'])
 def get_competition_players(competition_id):
     """Get the players in a competition / ladder """
-    competition = Competition.query.filter_by(competitionId=competition_id).first()
+    competition = Competition.query.filter_by(
+        competitionId=competition_id).first()
     print competition.players
     return jsonify(players=None)
 
@@ -76,12 +76,14 @@ def create_competition(name):
     return jsonify(competition=competition.competitionId)
 
 
-@APP.route('/register/player/<int:player_id>/in/competition/<int:competition_id>', methods=['PUT', 'POST'])
+@APP.route('/register/player/<int:player_id>/in/competition/<int:competition_id>',
+           methods=['PUT', 'POST'])
 def register_player_in_league(player_id, competition_id):
     """Register / Add a player to a league"""
     player = Player.query.filter_by(playerId=player_id).first()
     if (player.playerId == player_id):
-        competition = Competition.query.filter_by(competitionId=competition_id).first()
+        competition = Competition.query.filter_by(
+            competitionId=competition_id).first()
         print competition.players
         competition.players.append(player)
         DB.session.commit()
@@ -90,10 +92,6 @@ def register_player_in_league(player_id, competition_id):
         return jsonify(result=mapped)
     else:
         return jsonify(status="player not found")
-
-
-def to_dict(x):
-    return x.__dict__
 
 
 def get_players():
