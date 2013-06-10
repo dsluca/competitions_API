@@ -2,7 +2,7 @@ from ladderapi import APP, DB, model
 from flask import Flask, jsonify, request
 from flask.ext.sqlalchemy import SQLAlchemy
 from ladderapi import model
-from model import Player, Competition
+from model import Competitor, Competition
 import json
 
 
@@ -22,22 +22,19 @@ def get_ladder():
 @APP.route('/db/test')
 def db_test():
     """Test the connection to the db is fine."""
-    all_users = Player.query.all()
+    all_users = Competitor.query.all()
     userx = all_users.pop()
     return jsonify(X=userx.email)
 
 
-@APP.route('/create/player/', defaults={'name': None, 'email': None},
-           methods=['POST', 'PUT'])
-@APP.route('/create/player/<string:name>/<string:email>',
-           methods=['POST', 'PUT'])
-def create_player(name, email):
+@APP.route('/create/player/', methods=['POST', 'PUT'])
+def create_player():
     """create a new player"""
     try:
         if (request.form.get('name', None) is not None):
             name = request.form['name']
             email = request.form['email']
-        player = Player(name, email)
+        player = Competitor(name, email)
         DB.session.add(player)
         DB.session.commit()
         res = {"status": "OK",
@@ -80,7 +77,7 @@ def create_competition(name):
            methods=['PUT', 'POST'])
 def register_player_in_league(player_id, competition_id):
     """Register / Add a player to a league"""
-    player = Player.query.filter_by(playerId=player_id).first()
+    player = Competitor.query.filter_by(playerId=player_id).first()
     if (player.playerId == player_id):
         competition = Competition.query.filter_by(
             competitionId=competition_id).first()
@@ -92,6 +89,14 @@ def register_player_in_league(player_id, competition_id):
         return jsonify(result=mapped)
     else:
         return jsonify(status="player not found")
+
+
+@APP.route('/result/game', methods=['PUT', 'POST'])
+def result_game():
+    """result a game"""
+    game_id = request.form.get('gameId', None)
+    #for now results will be (H)ome (D)raw (A)way
+    result = request.form.get('result', None)
 
 
 def get_players():

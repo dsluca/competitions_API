@@ -4,20 +4,21 @@ from flask.ext.sqlalchemy import SQLAlchemy
 
 
 player_competitions = DB.Table('player_competitions',
-                               DB.Column('playerId', DB.Integer,
-                                         DB.ForeignKey('player.playerId')),
+                               DB.Column('competitorId', DB.Integer,
+                                         DB.ForeignKey('competitor.competitorId')),
                                DB.Column('competitionId',
                                          DB.Integer,
                                          DB.ForeignKey('competition.competitionId'))
                               )
 
 
-class Player(DB.Model):
-    """DB Object repesenting a player """
-    playerId = DB.Column(DB.Integer, primary_key=True)
+class Competitor(DB.Model):
+    """DB Object repesenting a competitor """
+    competitorId = DB.Column(DB.Integer, primary_key=True)
     name = DB.Column(DB.String(80))
     email = DB.Column(DB.String(120), unique=True)
-    challenges = DB.relationship('Challenge', backref='player', lazy='dynamic')
+    games_home = DB.relationship('Game_Home', backref='competitor_home', lazy='dynamic')
+    games_away = DB.relationship('Game_Away', backref='competitor_away', lazy='dynamic')
 
     def __init__(self, name, email):
         self.name = name
@@ -31,8 +32,8 @@ class Competition(DB.Model):
     """DB Object representing a competition"""
     competitionId = DB.Column(DB.Integer, primary_key=True)
     name = DB.Column(DB.String(120), unique=True)
-    players = DB.relationship('Player', secondary=player_competitions,
-                              backref=DB.backref('players', lazy='dynamic'))
+    competitors = DB.relationship('Competitor', secondary=player_competitions,
+                              backref=DB.backref('competitors', lazy='dynamic'))
 
     def __init__(self, name):
         self.name = name
@@ -41,13 +42,17 @@ class Competition(DB.Model):
         return '<Name %r>' % self.name
 
 
-class Challenge(DB.Model):
+class Game(DB.Model):
     """DB Object represneting a challenge"""
-    challengeId = DB.Column(DB.Integer, primary_key=True)
-    player1 = DB.Column(DB.Integer, DB.ForeignKey('player.playerId'))
+    gameId = DB.Column(DB.Integer, primary_key=True)
+    competitor_home = DB.Column(DB.Integer, DB.ForeignKey('competitor.competitorId'))
+    competitor_away = DB.Column(DB.Integer, DB.ForeignKey('competitor.competitorId'))
+    competition = DB.Column(DB.Integer, DB.ForeignKey('competition.competitionId'))
 
-    def __init__(self, player1):
-        self.player1 = player1
+    def __init__(self, competition, competitor_home, copetitor_away):
+        self.competition = competition
+        self.competitor_home = competitor_home
+        self.competitor_away = competitor_away
 
     def __repr__(self):
-        return '<player1 ' + self.player1 + '> <player2 ' + self.player2 + '>'
+        return '<Home  ' + self.competitor_home + '> <Away ' + self.competitor_away + '>'
