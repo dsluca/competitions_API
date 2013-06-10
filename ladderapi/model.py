@@ -17,8 +17,8 @@ class Competitor(DB.Model):
     competitorId = DB.Column(DB.Integer, primary_key=True)
     name = DB.Column(DB.String(80))
     email = DB.Column(DB.String(120), unique=True)
-    games_home = DB.relationship('Game_Home', backref='competitor_home', lazy='dynamic')
-    games_away = DB.relationship('Game_Away', backref='competitor_away', lazy='dynamic')
+    games_home = DB.relationship('Game', backref='competitor_home', lazy='dynamic')
+    games_away = DB.relationship('Game', backref='competitor_away', lazy='dynamic')
 
     def __init__(self, name, email):
         self.name = name
@@ -48,6 +48,7 @@ class Game(DB.Model):
     competitor_home = DB.Column(DB.Integer, DB.ForeignKey('competitor.competitorId'))
     competitor_away = DB.Column(DB.Integer, DB.ForeignKey('competitor.competitorId'))
     competition = DB.Column(DB.Integer, DB.ForeignKey('competition.competitionId'))
+    result = DB.Column(DB.String(1))
 
     def __init__(self, competition, competitor_home, copetitor_away):
         self.competition = competition

@@ -2,7 +2,7 @@ from ladderapi import APP, DB, model
 from flask import Flask, jsonify, request
 from flask.ext.sqlalchemy import SQLAlchemy
 from ladderapi import model
-from model import Competitor, Competition
+from model import Competitor, Competition, Game
 import json
 
 
@@ -91,12 +91,25 @@ def register_player_in_league(player_id, competition_id):
         return jsonify(status="player not found")
 
 
+@APP.route('/add/game', methods=['PUT', 'POST'])
+@APP.route('/schedule/game', methods=['PUT', 'POST'])
+def add_game():
+    """Add a game to a competition"""
+    competition = request.form.get('competitionId', None)
+    competitor_h = request.form.get('competitorHome', None)
+    competitor_a = request.form.get('competitorAway', None)
+    game = Game(competition, competitor_h, competitor_a)
+    DB.session.add(player)
+    DB.session.commit()
+    return jsonify(status="OK")
+
 @APP.route('/result/game', methods=['PUT', 'POST'])
 def result_game():
     """result a game"""
     game_id = request.form.get('gameId', None)
     #for now results will be (H)ome (D)raw (A)way
     result = request.form.get('result', None)
+    return jsonify(status="TODO")
 
 
 def get_players():
